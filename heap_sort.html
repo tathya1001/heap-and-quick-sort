@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heap Sort Visualizer</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Latin modern mono prop 10 regular', sans-serif;
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+            background-color: #f9fafb;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-top: 1rem;
+            color: #333;
+        }
+
+        #inputValues {
+            font-family: inherit;
+            padding: 0.75rem;
+            width: 80%;
+            max-width: 400px;
+            font-size: 1rem;
+            margin: 1rem 0;
+            border: 1px solid #ccc;
+            border-radius: 0.5rem;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        #inputValues:focus {
+            border-color: #3498db;
+        }
+
+        button {
+            background-color: #3498db;
+            color: #fff;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin: 0.5rem;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        #treeContainer {
+            width: 50vw;
+            margin: 1rem auto;
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        #sortedArrayHeading {
+            font-size: 1.5rem;
+            color: #333;
+            display: none;
+        }
+
+        #sortedArrayContainer {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .sorted-node {
+            width: 3rem;
+            height: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1.2rem;
+            color: #fff;
+            background-color: #2ecc71;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .level {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+
+        .node {
+            width: 100%;
+            height: 3.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            margin: 0.25rem;
+            font-weight: 600;
+            font-size: 2rem;
+            color: #fff;
+            background-color: #3498db;
+            transition: background-color 0.3s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .empty {
+            width: 100%;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .swapped {
+            background-color: #e74c3c !important;
+        }
+
+        .sorted {
+            background-color: #2ecc71 !important;
+        }
+
+        .empty {
+            background-color: transparent;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Heap Sort Visualizer</h1>
+    <input type="text" id="inputValues" placeholder="Enter comma-separated values">
+    <div>
+        <button onclick="createHeap()">Create Heap</button>
+        <button onclick="heapSort()">Heap Sort</button>
+    </div>
+    <div id="treeContainer"></div>
+
+    <h2 id="sortedArrayHeading">Sorted Array</h2>
+    <div id="sortedArrayContainer"></div>
+
+    <script>
+        let values = [];
+        let swapDelay = 3000;
+
+        function createHeap() {
+            const input = document.getElementById("inputValues").value;
+            values = input.split(",").map(Number);
+            buildMaxHeap(values);
+            displayTree(values);
+            document.getElementById("sortedArrayHeading").style.display = "none"; // Hide heading initially
+            document.getElementById("sortedArrayContainer").innerHTML = ""; // Clear sorted array container
+        }
+
+        function heapify(arr, n, i) {
+            let largest = i;
+            let left = 2 * i + 1;
+            let right = 2 * i + 2;
+
+            if (left < n && arr[left] > arr[largest]) largest = left;
+            if (right < n && arr[right] > arr[largest]) largest = right;
+
+            if (largest !== i) {
+                [arr[i], arr[largest]] = [arr[largest], arr[i]];
+                displayTree(arr);
+                heapify(arr, n, largest);
+            }
+        }
+
+        function buildMaxHeap(arr) {
+            const n = arr.length;
+            for (let i = Math.floor(n / 2) - 1; i >= 0; i--) heapify(arr, n, i);
+        }
+
+        function heapSort() {
+            const n = values.length;
+            buildMaxHeap(values);
+            let i = n - 1;
+
+            function heapSortStep() {
+                if (i > 0) {
+                    [values[0], values[i]] = [values[i], values[0]];
+                    displayTree(values);
+                    heapify(values, i, 0);
+                    i--;
+                    setTimeout(heapSortStep, swapDelay);
+                } else {
+                    displaySortedArray(values);
+                }
+            }
+
+            heapSortStep();
+        }
+
+        function displayTree(arr) {
+            const treeContainer = document.getElementById("treeContainer");
+            treeContainer.innerHTML = "";
+
+            let index = 0;
+            let elementsInLevel = 1;
+
+            while (index < arr.length) {
+                const levelContainer = document.createElement("div");
+                levelContainer.classList.add("level");
+
+                for (let i = 0; i < elementsInLevel; i++) {
+                    const node = document.createElement("div");
+                    node.classList.add(index < arr.length ? "node" : "empty");
+                    node.textContent = index < arr.length ? arr[index] : '';
+                    levelContainer.appendChild(node);
+                    index++;
+                }
+
+                treeContainer.appendChild(levelContainer);
+                elementsInLevel *= 2;
+            }
+        }
+
+        function displaySortedArray(arr) {
+            const sortedArrayContainer = document.getElementById("sortedArrayContainer");
+            sortedArrayContainer.innerHTML = "";
+
+            arr.forEach(value => {
+                const sortedNode = document.createElement("div");
+                sortedNode.classList.add("sorted-node");
+                sortedNode.textContent = value;
+                sortedArrayContainer.appendChild(sortedNode);
+            });
+
+            document.getElementById("sortedArrayHeading").style.display = "block"; // Show heading when sorted array is displayed
+        }
+    </script>
+</body>
+
+</html>

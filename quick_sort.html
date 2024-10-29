@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Sort Visualizer</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Latin modern mono prop 10 regular', sans-serif;
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+            background-color: #f9fafb;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-top: 1rem;
+            color: #333;
+        }
+
+        #inputArray,
+        #pivotSelect {
+            font-family: inherit;
+            padding: 0.75rem;
+            width: 80%;
+            max-width: 400px;
+            font-size: 1rem;
+            margin: 1rem 0;
+            border: 1px solid #ccc;
+            border-radius: 0.5rem;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        #inputArray:focus,
+        #pivotSelect:focus {
+            border-color: #3498db;
+        }
+
+        button {
+            background-color: #3498db;
+            color: #fff;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin: 0.5rem;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        #visualization {
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            padding: 20px;
+        }
+
+        .box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #e0e0e0;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            width: 3rem;
+            height: 3rem;
+            transition: transform 0.3s ease, background-color 0.3s ease;
+            text-align: center;
+        }
+
+
+        .pivot {
+            background-color: #f39c12;
+            color: white;
+            font-weight: bold;
+        }
+
+        .swapped {
+            background-color: #2ecc71;
+            color: white;
+            font-weight: bold;
+        }
+
+        .current {
+            background-color: #e74c3c;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Quick Sort Visualizer</h1>
+    <input type="text" id="inputArray" placeholder="Enter comma-separated values" />
+    <select id="pivotSelect">
+        <option value="last">Last Element as Pivot</option>
+        <option value="first">First Element as Pivot</option>
+        <option value="random">Random Element as Pivot</option>
+    </select>
+    <button onclick="startQuickSort()">Start Quick Sort</button>
+    <div id="visualization"></div>
+
+    <script>
+        function createBoxes(array, pivotIndex = null, swappedIndices = [], currentIndex = null) {
+            const visualization = document.getElementById("visualization");
+            visualization.innerHTML = "";
+
+            array.forEach((value, index) => {
+                const box = document.createElement("div");
+                box.className = "box";
+                box.textContent = value;
+
+                if (index === pivotIndex) box.classList.add("pivot");
+                if (swappedIndices.includes(index)) box.classList.add("swapped");
+                if (index === currentIndex) box.classList.add("current");
+
+                visualization.appendChild(box);
+            });
+        }
+
+        function delay(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        async function quickSort(array, low, high, pivotSelection) {
+            if (low < high) {
+                let pi = await partition(array, low, high, pivotSelection);
+                await quickSort(array, low, pi - 1, pivotSelection);
+                await quickSort(array, pi + 1, high, pivotSelection);
+            }
+        }
+
+        async function partition(array, low, high, pivotSelection) {
+            let pivotIndex;
+            if (pivotSelection === "first") {
+                pivotIndex = low;
+                [array[pivotIndex], array[high]] = [array[high], array[pivotIndex]]; // Move pivot to end for consistency
+                pivotIndex = high;
+            } else if (pivotSelection === "random") {
+                pivotIndex = Math.floor(Math.random() * (high - low + 1)) + low;
+                [array[pivotIndex], array[high]] = [array[high], array[pivotIndex]]; // Move pivot to end
+                pivotIndex = high;
+            } else {
+                pivotIndex = high;
+            }
+
+            const pivot = array[pivotIndex];
+            let i = low - 1;
+            createBoxes(array, pivotIndex);
+            await delay(500);
+
+            for (let j = low; j < high; j++) {
+                createBoxes(array, pivotIndex, [], j);
+                await delay(300);
+
+                if (array[j] < pivot) {
+                    i++;
+                    [array[i], array[j]] = [array[j], array[i]];
+                    createBoxes(array, pivotIndex, [i, j]);
+                    await delay(500);
+                }
+            }
+
+            [array[i + 1], array[high]] = [array[high], array[i + 1]]; // Place pivot in its correct position
+            createBoxes(array, i + 1, [i + 1, high]);
+            await delay(500);
+
+            return i + 1;
+        }
+
+
+        function startQuickSort() {
+            const inputArray = document.getElementById("inputArray").value.split(',').map(Number);
+            const pivotSelection = document.getElementById("pivotSelect").value;
+            if (inputArray.length === 0 || inputArray.some(isNaN)) {
+                alert("Please enter a valid list of numbers.");
+                return;
+            }
+            createBoxes(inputArray);
+            quickSort(inputArray, 0, inputArray.length - 1, pivotSelection);
+        }
+    </script>
+</body>
+
+</html>

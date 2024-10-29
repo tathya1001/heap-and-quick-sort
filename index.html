@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sorting Visualizer Selector</title>
+    <style>
+        body {
+            font-family: 'Latin modern mono prop 10 regular', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            text-align: center;
+        }
+
+        h1 {
+            font-family: inherit;
+            font-size: 2rem;
+            color: #333;
+        }
+
+        .button {
+            font-family: inherit;
+            font-size: 1.2rem;
+            margin: 0.5rem;
+            padding: 1rem 2rem;
+            color: white;
+            background-color: #1f84f7;
+            border: none;
+            border-radius: 16px;
+            width: 10rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .button:hover {
+            background-color: #0a578a;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>How do you want to sort?</h1>
+        <button class="button" onclick="location.href='heap_sort.html'">Heap Sort</button>
+        <button class="button" onclick="location.href='quick_sort.html'">Quick Sort</button>
+    </div>
+</body>
+
+</html>
